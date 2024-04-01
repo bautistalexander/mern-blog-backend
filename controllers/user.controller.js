@@ -44,9 +44,25 @@ export const updateUser = async (req, res, next) => {
       },
     }, { new: true });
 
-    const {password, ...rest} = updateUser._doc;
+    const { password, ...rest } = updateUser._doc;
 
     res.status(200).json(rest);
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+
+export const deleteUser = async (req, res, next) => {
+  try {
+    if (req.user.id !== req.params.userId) {
+      return next(errorHandler(403, 'No tienes permisos para eliminar este usuario'));
+    }
+    const result = await User.findOneAndDelete({ _id: req.params.userId });
+    if (!result) {
+      return next(errorHandler(404, 'No se encontró el usuario'));
+    }
+    res.status(200).json({ message: 'El usuario ha sido eliminado' });
   } catch (error) {
     console.log(error);
     next(error);
