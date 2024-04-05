@@ -10,7 +10,7 @@ export const test = (req, res) => {
 export const updateUser = async (req, res, next) => {
   try {
     if (req.user.id !== req.params.userId) {
-      return next(403, 'No tienes permisos para editar este usuario');
+      return next(errorHandler(403, 'No tienes permisos para editar este usuario'));
     }
     if (req.body.password) {
       if (req.body.password.length < 6) {
@@ -56,7 +56,7 @@ export const updateUser = async (req, res, next) => {
 export const deleteUser = async (req, res, next) => {
 
   try {
-    if (req.user.id !== req.params.userId) {
+    if (!req.user.isAdmin && req.user.id !== req.params.userId) {
       return next(errorHandler(403, 'No tienes permisos para eliminar este usuario'));
     }
     const result = await User.findOneAndDelete({ _id: req.params.userId });
@@ -82,7 +82,7 @@ export const signout = async (req, res, next) => {
 export const getUsers = async (req, res, next) => {
   try {
     if (!req.user.isAdmin) {
-      return next(403, 'No tienes permisos para ver a todos los usuarios');
+      return next(errorHandler(403, 'No tienes permisos para ver a todos los usuarios'));
     }
     const startIndex = parseInt(req.query.startIndex) || 0;
     const limit = parseInt(req.query.limit) || 9;
@@ -108,7 +108,7 @@ export const getUsers = async (req, res, next) => {
     });
 
     res.status(200).json({
-      user: usersWithoutPassword,
+      users: usersWithoutPassword,
       totalUsers,
       lastMonthUsers
     });
