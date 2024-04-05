@@ -21,7 +21,6 @@ export const createPost = async (req, res, next) => {
   }
 };
 
-
 export const getPosts = async (req, res, next) => {
   try {
     const startIndex = parseInt(req.query.startIndex) || 0;
@@ -59,6 +58,19 @@ export const getPosts = async (req, res, next) => {
       lastMonthPosts
     });
 
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+
+export const deletePost = async (req, res, next) => {
+  try {
+    if (!req.user.isAdmin || req.user.id !== req.params.userId) {
+      return next(403, 'No tienes permitido eliminar este post');
+    }
+    await Post.findByIdAndDelete(req.params.postId);
+    res.status(200).json('El post ha sido eliminado');
   } catch (error) {
     console.log(error);
     next(error);
