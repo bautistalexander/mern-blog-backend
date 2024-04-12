@@ -82,6 +82,7 @@ export const updatePost = async (req, res, next) => {
     if (!req.user.isAdmin || req.user.id !== req.params.userId) {
       return next(403, 'No tienes permitido actualizar este post');
     }
+    const slug = req.body.title.split(' ').join('-').toLowerCase().replace(/[^a-zA-Z0-9-]/g, '');
     const updatedPost = await Post.findByIdAndUpdate(
       req.params.postId,
       {
@@ -89,7 +90,8 @@ export const updatePost = async (req, res, next) => {
           title: req.body.title,
           content: req.body.content,
           category: req.body.category,
-          image: req.body.image
+          image: req.body.image,
+          slug: slug
         }
       }, { new: true }
     );
